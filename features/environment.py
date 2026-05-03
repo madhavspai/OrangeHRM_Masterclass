@@ -19,7 +19,7 @@ def before_scenario(context, scenario):
     # When pushing to a CI/CD server, uncomment this so it runs invisibly!
 
     # ---------------------------------------------------------
-    # chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--headless=new")
     # ---------------------------------------------------------
 
     chrome_options.add_argument("--start-maximized") #to see all the visible buttons and page elements
