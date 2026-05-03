@@ -1,34 +1,36 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from utils.logger import get_logger
 
-
 class LoginPage:
-
-    # 1. THE CONSTRUCTOR
     def __init__(self, driver):
-        # Save the steering wheel so all methods in this class can use it
         self.driver = driver
-        # Initialize the logger specifically for this page
         self.log = get_logger("LoginPage")
+        # Define a standard wait time (10 seconds is usually enough)
+        self.wait = WebDriverWait(self.driver, 10)
 
-    # 2. THE LOCATORS (Stored as Tuples)
-    # If UI changes, we ONLY update these three lines!
+    # LOCATORS
     USERNAME_INPUT = (By.NAME, "username")
     PASSWORD_INPUT = (By.NAME, "password")
     LOGIN_BUTTON = (By.CSS_SELECTOR, ".oxd-button.orangehrm-login-button")
 
-    # 3. THE ACTIONS
+    # ACTIONS
     def enter_username(self, username):
-        # self.driver steers. find_element looks at our locator. send_keys types.
-        self.driver.find_element(*self.USERNAME_INPUT).send_keys(username)
+        self.log.info(f"Entering username")
+        # Wait until the element is actually visible and ready for text
+        el = self.wait.until(EC.visibility_of_element_located(self.USERNAME_INPUT))
+        el.clear() # Best practice: clear before typing
+        el.send_keys(username)
 
     def enter_password(self, password):
-        self.driver.find_element(*self.PASSWORD_INPUT).send_keys(password)
+        self.log.info("Entering password")
+        el = self.wait.until(EC.visibility_of_element_located(self.PASSWORD_INPUT))
+        el.clear()
+        el.send_keys(password)
 
     def click_login(self):
         self.log.info("Clicking the login button")
-        self.driver.find_element(*self.LOGIN_BUTTON).click()
-
-#(Notice the * inside find_element(*self.USERNAME_INPUT).
-# Our locator is a Tuple (two items). The * just unzips
-# the tuple so Selenium can read both the 'By.NAME' and the 'username' separately.)
+        # Wait until the button is 'Clickable' (not just present in the DOM)
+        btn = self.wait.until(EC.element_to_be_clickable(self.LOGIN_BUTTON))
+        btn.click()
