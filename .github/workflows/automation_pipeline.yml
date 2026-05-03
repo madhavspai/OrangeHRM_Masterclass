@@ -1,49 +1,39 @@
 name: OrangeHRM Regression Suite
 
-# 1. THE TRIGGER: When does the robot wake up?
 on:
   push:
-    branches: [ "main" ] # Wakes up when a developer pushes code to the main branch
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ] # Or when someone asks to merge new code
+    branches: [ "main" ]
 
 jobs:
   ui-automation:
-    # 2. THE BLANK SLATE: Spin up an invisible Ubuntu Linux computer
     runs-on: ubuntu-latest
 
-    # 3. THE STEPS: What does the robot do?
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
-      # Robot downloads all your code (OrangeHRM and the framework)
+      uses: actions/checkout@v4
 
     - name: Set up Python 3.10
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5 # Updated to v5 (latest)
       with:
         python-version: "3.10"
-      # Robot installs Python
-
-    - name: Install Google Chrome
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-      # Robot installs a headless version of Chrome on the Linux server
 
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-      # Robot reads your grocery list and installs Selenium, Behave, etc.
 
     - name: Run Behave Tests
+      # Added 'continue-on-error' or 'if: always()' logic below to ensure we get reports
       run: behave -f allure_behave.formatter:AllureFormatter -o reports/ features/
-      # Robot runs your tests! (Remember your environment.py needs --headless=new active for this to work!)
 
-    - name: Upload Test Execution Logs
-      if: always() # Run this even if the tests fail!
-      uses: actions/upload-artifact@v3
+    - name: Upload Test Artifacts (Logs & Allure Results)
+      if: always() # IMPORTANT: Captures results even if tests fail
+      uses: actions/upload-artifact@v4
       with:
-        name: execution-logs
-        path: logs/test_execution.log
-      # Robot saves your Black Box logs so you can download them later.
+        name: regression-test-results
+        path: |
+          logs/
+          reports/
+      # This saves BOTH your raw logs and your Allure JSON results in one zip file.
